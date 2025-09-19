@@ -1,19 +1,5 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
-__lua__
--- which sprite to start with
-frame = 0  
-frames = {0,2}
-function _update()
-  frame = flr((time()*2) % #frames)
-end
-
-function _draw()
-  cls()  -- clear screen
-  -- draw sprite (sprites are 8x8 each)
-  spr(frames[frame+1], 60, 60)  -- draw at x=60,y=60
-end
-
 __gfx__
 0000000008000000cccccccc0000000000000000ccccccccc8cccccc000000000000000000000000000000000000000000000000000000000000000000000000
 0007700000400000cccccccc0000000000000000cccccccccc4ccccc000000000000000000000000000000000000000000000000000000000000000000000000
