@@ -9,72 +9,82 @@ function init_player()
 		size = 8,
 		speed = 1,
 		dir = 1,
+
+		-- states
 		is_walking = false,
 		is_shifting = false,
 		is_reversing = false,
 		is_freezing = false,
 		row = 0,
-		col = 0,
+		col = 0,  -- might be uneccessary
 		
 		walk = function(self)
-				self.x += self.speed * self.dir
-				
-				if self.x >= 127
-				and self.dir == 1 then
-					self.is_walking = false
-					self.is_shifting = true
-					self.row += 1
-				end
-				
-				if self.x + self.size <= 0
-				and self.dir == -1 then
-					self.is_walking = false
-					self.is_shifting = true
-					self.row += 1
-				end
-				
-				-- update col number
-				if self.x % 8 == 0 then
-					-- update map
-					local row = flr(self.y / 8)
-					local col = flr(self.x / 8)
+			-- walk state
+			self.x += self.speed * self.dir
+			
+			if self.x >= 127
+			and self.dir == 1 then
+				self.is_walking = false
+				self.is_shifting = true
+				self.row += 1
+			end
+			
+			if self.x + self.size <= 0
+			and self.dir == -1 then
+				self.is_walking = false
+				self.is_shifting = true
+				self.row += 1
+			end
+			
+			-- update col number
+			if self.x % 8 == 0 then
+				-- update map
+				-- use the player position to get the correct index on the map
+				local row = flr(self.y / 8)
+				local col = flr(self.x / 8)
 
-					-- replace the map tile with the correct tile
-					mp[row + 1][col + 1] = complete_mp[row + 1][col + 1]
-					self.col += 1
-				end
+				-- replace the map tile with the correct tile
+				mp[row + 1][col + 1] = complete_mp[row + 1][col + 1]
+				self.col += 1
+			end
 		end,
 		
 		shift = function(self)
-				self.y += self.speed
-				
-				if self.y >= self.row * 8 then
-					self.col = 0
-					self.is_shifting = false
-					self.is_reversing = true
-				end
+			-- shift state
+			self.y += self.speed
+			
+			if self.y >= self.row * 8 then
+				self.col = 0
+				self.is_shifting = false
+				self.is_reversing = true
+			end
 		end,
 		
 		reverse = function(self)
+			-- reverse state
 			self.dir = -self.dir
 			self.is_reversing = false
 			self.is_walking = true
 		end,
 		
 		freeze = function(self)
+			-- freeze state
 			self.x += 0
 			self.y += 0
 		end
 	}
 	
+	-- set the default state to active
 	player.is_walking = true
 end
 
 function update_player()
+	-- freeze the player
 	if btnp(5) then -- x button
 		player.is_freezing = not player.is_freezing
 	end
 	
+	-- call states approriately
 	if player.is_walking 
 	and not player.is_freezing then
 		player:walk()
@@ -96,6 +106,8 @@ function update_player()
 end
 
 function draw_player()
+
+	-- subject to change
 	rectfill(
 		player.x,
 		player.y,
@@ -140,6 +152,8 @@ function init_map()
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	}
 
+	-- the completed map when the player fully crosses the screen
+	-- each value corresponds to the color it will show
 	complete_mp = {
 		{7, 2, 7, 2, 7, 2, 7, 2, 2, 2, 7, 2, 2, 1, 1, 1},
 		{7, 2, 7, 2, 7, 2, 7, 2, 2, 2, 7, 2, 2, 1, 1, 1},
@@ -161,6 +175,7 @@ function init_map()
 end
 
 function draw_map()
+	-- iterate through the map and draw correct color tiles
 	-- row (y)
 	for i2=1, 16 do 
 		-- col (x)
@@ -184,7 +199,7 @@ function _init()
 	init_player()
 end
 
-i = 0
+i = 0 -- might be uneccessary
 function _update60()
 	-- player
 	update_player()
