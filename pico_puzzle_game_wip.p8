@@ -33,7 +33,7 @@ function init_player()
 				end
 		end,
 		
-		shift = function(self, r0w)
+		shift = function(self)
 				self.y += self.speed
 				
 				if self.y >= self.row * 8 then
