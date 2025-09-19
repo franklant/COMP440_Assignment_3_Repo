@@ -171,12 +171,24 @@ function init_player()
 	player.is_walking = true
 end
 
+i = 0
+countdown_duration = 0
 function update_player()
 	-- freeze the player
 	if btnp(5) then -- x button
-		player.is_freezing = not player.is_freezing
+		player.is_freezing = true
+		countdown_duration = 60 * 5
 	end
 	
+	-- 5 second time for freezing	
+	if countdown_duration > 0 then
+ 		countdown_duration -= 1
+  		-- check if the timer has reached zero.
+  	if countdown_duration == 0 then
+	 		player.is_freezing = false
+	 	end
+	end
+
 	-- call states approriately
 	if player.is_walking 
 	and not player.is_freezing then
@@ -208,6 +220,10 @@ function draw_player()
 		player.y + player.size,
 		7
 	)
+
+	if countdown_duration > 0 then
+		print(flr(countdown_duration / 60) + 1, player.x + 3, player.y + 2, 15)
+	end
 end
 
 
@@ -292,7 +308,6 @@ function _init()
 	end
 end
 
-i = 0 -- might be uneccessary
 function _update60()
 	-- handle states
 	if state == game_states.menu then
@@ -319,3 +334,4 @@ __gfx__
 00077000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00077000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00700700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
