@@ -105,12 +105,15 @@ end
 
 
 -- message display
-function display_message(text, t, i2)
+function display_message(text, t, x, y)
 	-- text: text to display
-	-- t = how long to display
+	-- t: how long to display
+	-- x: texts x-position
+	-- y: texts y-position
+
 	i += 1
 	if i <= t * 60 then
-		print(text, 0, 64, 4)
+		print(text, x, y, 4)
 	end
 end
 
@@ -174,7 +177,14 @@ function _draw()
 	-- player
 	draw_player()
 
-	print(player.col, 0, 64, 7)
+	-- display message
+	display_message(
+		"Press X to Freeze", 
+		5,
+		56, 0
+	)
+
+	-- print(player.col, 0, 64, 7)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
