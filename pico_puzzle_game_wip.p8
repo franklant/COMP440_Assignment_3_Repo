@@ -1,6 +1,99 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
+game_states = {
+	menu = 1,
+	game = 2
+}
+
+-- current state of the game
+state = game_states.menu
+
+-- menu state
+function init_menu_state()
+	local offset = 32
+	title_text = {
+		text = "Just Paint!",
+		x = 64 - offset,
+		y = 64,
+		c = 4
+	}
+
+	start_text = {
+		text = "Press X to Start",
+		x = 56 - offset,
+		y = 72,
+		c = 8
+	}
+
+
+end
+
+angle = 0
+function update_menu_state()
+	-- make text floaty
+	angle += 0.01
+
+	title_text.y += sin(angle)
+
+	if angle >= 1 then
+		angle = 0
+	end
+
+	if btnp(5) then -- x button pressed
+		state = game_states.game
+		_init() -- reinitialize the game
+	end
+end
+
+function draw_menu_state()
+	local offset = 12
+	-- title
+	print(
+		title_text.text, 
+		title_text.x, title_text.y,
+		title_text.c
+	)
+
+	-- start
+	print(
+		start_text.text,
+		start_text.x, start_text.y,
+		start_text.c
+	)
+end
+
+-- game state
+function init_game_state()
+	-- map
+	init_map()
+
+	-- player
+	init_player()
+end
+
+function update_game_state()
+	-- player
+	update_player()
+end
+
+function draw_game_state()
+	-- draw map
+	draw_map()
+
+	-- player
+	draw_player()
+
+	-- display message
+	display_message(
+		"Press X to Freeze", 
+		5,
+		56, 0
+	)
+
+	-- print(player.col, 0, 64, 7)
+end
+
 -- player
 function init_player()
 	player = {
@@ -191,37 +284,33 @@ function draw_map()
 end
 
 function _init()
-
-	-- map
-	init_map()
-
-	-- player
-	init_player()
+	-- handle states
+	if state == game_states.menu then
+		init_menu_state()
+	elseif state == game_states.game then
+		init_game_state()
+	end
 end
 
 i = 0 -- might be uneccessary
 function _update60()
-	-- player
-	update_player()
+	-- handle states
+	if state == game_states.menu then
+		update_menu_state()
+	elseif state == game_states.game then
+		update_game_state()
+	end
 end
 
 function _draw()
 	cls()
 
-	-- draw map
-	draw_map()
-
-	-- player
-	draw_player()
-
-	-- display message
-	display_message(
-		"Press X to Freeze", 
-		5,
-		56, 0
-	)
-
-	-- print(player.col, 0, 64, 7)
+	-- handle states
+	if state == game_states.menu then
+		draw_menu_state()
+	elseif state == game_states.game then
+		draw_game_state()
+	end
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
