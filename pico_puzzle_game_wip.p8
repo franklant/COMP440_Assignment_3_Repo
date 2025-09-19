@@ -4,7 +4,7 @@ __lua__
 -- player
 function init_player()
 	player = {
-		x = 0,
+		x = 0 - 7, -- ensures the player paints the whole map
 		y = 0,
 		size = 8,
 		speed = 1,
@@ -14,22 +14,32 @@ function init_player()
 		is_reversing = false,
 		is_freezing = false,
 		row = 0,
+		col = 0,
 		
 		walk = function(self)
 				self.x += self.speed * self.dir
 				
-				if self.x + self.size >= 127
+				if self.x >= 127
 				and self.dir == 1 then
 					self.is_walking = false
 					self.is_shifting = true
 					self.row += 1
 				end
 				
-				if self.x <= 0
+				if self.x + self.size <= 0
 				and self.dir == -1 then
 					self.is_walking = false
 					self.is_shifting = true
 					self.row += 1
+				end
+				
+				-- update col number
+				if self.x % 8 == 0 then
+					-- update map
+					local row = flr(self.y / 8)
+					local col = flr(self.x / 8)
+					mp[row + 1][col + 1] = 1
+					self.col += 1
 				end
 		end,
 		
@@ -37,6 +47,7 @@ function init_player()
 				self.y += self.speed
 				
 				if self.y >= self.row * 8 then
+					self.col = 0
 					self.is_shifting = false
 					self.is_reversing = true
 				end
@@ -103,7 +114,46 @@ function display_message(text, t, i2)
 	end
 end
 
+function init_map()
+	-- 16 * 16 tile grid.
+	mp = {
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	}
+end
+
+function draw_map()
+	-- row (y)
+	for i2=1, 16 do 
+		-- col (x)
+		for j2=1, 16 do
+			if mp[i2][j2] == 1 then
+				local x = j2 * 8
+				local y = i2 * 8
+				circfill(x - 4,  y - 4, 4, rnd(2))
+			end
+		end
+	end
+end
+
 function _init()
+
+	-- map
+	init_map()
 
 	-- player
 	init_player()
@@ -117,15 +167,14 @@ end
 
 function _draw()
 	cls()
-	
+
+	-- draw map
+	draw_map()
+
 	-- player
 	draw_player()
-	
-	-- display message
-	display_message(
-	"press x to freeze",
-	 4, 0
-	)
+
+	print(player.col, 0, 64, 7)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
