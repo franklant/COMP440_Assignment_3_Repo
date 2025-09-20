@@ -137,6 +137,7 @@ function init_bombs()
         if bomb.group_id == 1 then bomb.color = 8
         elseif bomb.group_id == 2 then bomb.color = 11
         elseif bomb.group_id == 3 then bomb.color = 3
+        elseif bomb.group_id == 4 then bomb.color = 14 -- Added color for 4th group
         else bomb.color = 7
         end
 
@@ -188,7 +189,7 @@ function draw_bombs()
 end
 
 function init_switches()
-	local switch_colors = {8, 11, 3}
+	local switch_colors = {8, 11, 3, 14} -- Added 4th color
 	for i=1,switch_count do
 		local s = {
 			x = 16 + rnd(96),
@@ -238,7 +239,7 @@ function _init()
     bombs = {}
     switches = {}
     bomb_count = 8
-    switch_count = 3
+    switch_count = 4 -- Changed to 4
     i = 0
 
     -- player
