@@ -77,7 +77,7 @@ function init_game_state()
     
     -- switches
     switches = {}
-    switch_count = 2
+    switch_count = 1
     
     init_switches()
     init_bombs()
