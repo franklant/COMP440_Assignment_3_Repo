@@ -73,7 +73,7 @@ function init_game_state()
 
     -- bombs
     bombs = {}
-    bomb_count = 8
+    bomb_count = 4
     
     -- switches
     switches = {}
@@ -97,6 +97,7 @@ function update_game_state()
     for bomb in all(bombs) do
         if is_bomb_active(bomb) and check_collision(player, bomb) then
             state = game_states.menu
+            angle = 0
             _init() -- re-init menu
         end
     end
