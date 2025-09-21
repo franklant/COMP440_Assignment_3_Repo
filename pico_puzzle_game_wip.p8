@@ -473,7 +473,7 @@ function draw_switches()
 		print("s", s.x+2, s.y+1, color)
 
         if s.is_active and deactivate_timer > 0 then
-            print(flr(deactivate_timer / 60) + 1, s.x + 3, s.y + 2, 10)
+            print(flr(deactivate_timer / 60) + 1, s.x + 3, s.y + 2, 8)
         end
 	end
 end
