@@ -27,6 +27,8 @@ function init_menu_state()
         c = 8
     }
 
+    -- Playing menu music 
+    music(0)
 
 end
 
@@ -42,6 +44,7 @@ function update_menu_state()
     end
 
     if btnp(5) then -- x button pressed
+       sfx(0) --Playing start game sound effect
         state = game_states.game
         _init() -- reinitialize the game
     end
@@ -66,6 +69,7 @@ end
 -- game state
 function init_game_state()
     -- map
+    music(1) -- background music 
     init_map()
 
     -- player
@@ -96,6 +100,9 @@ function update_game_state()
     -- check for collision with bombs
     for bomb in all(bombs) do
         if is_bomb_active(bomb) and check_collision(player, bomb) then
+           --Play bomb collision sounds and stop music 
+           sfx(2)
+           music(-1)
             state = game_states.menu
             angle = 0
             countdown_duration = 0
@@ -105,6 +112,8 @@ function update_game_state()
 
     -- check win condition
     if player.cells_painted >= 264 then
+        --Play win game sound effect
+        sfx(4)
         state = game_states.win
         angle = 0
         countdown_duration = 0
@@ -150,6 +159,8 @@ function init_win_state()
         c = 8
     }
 
+-- Playing win music on entering this state
+music(2)
 
 end
 
@@ -165,6 +176,7 @@ function update_win_state()
     end
 
     if btnp(5) then -- x button pressed
+        sfx(0) --play 
         state = game_states.game
         angle = 0
         countdown_duration = 0
