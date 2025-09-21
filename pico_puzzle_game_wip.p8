@@ -288,6 +288,7 @@ function update_player()
     if btnp(5) then -- x button
         if not player.is_freezing and countdown_duration == 0 then
             player.is_freezing = true
+            sfx(1) -- playing freeze sound effect
             countdown_duration = 60 * 5
         end
     end
