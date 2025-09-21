@@ -77,11 +77,11 @@ function init_game_state()
 
     -- bombs
     bombs = {}
-    bomb_count = 1
+    bomb_count = 2
     
     -- switches
     switches = {}
-    switch_count = 1
+    switch_count = 2
     
     init_switches()
     init_bombs()
@@ -106,6 +106,7 @@ function update_game_state()
             state = game_states.menu
             angle = 0
             countdown_duration = 0
+            deactivate_timer = 0
             _init() -- re-init menu
         end
     end
@@ -117,6 +118,7 @@ function update_game_state()
         state = game_states.win
         angle = 0
         countdown_duration = 0
+        deactivate_timer = 0
         _init() -- reinitialize the game
     end
 end
@@ -180,6 +182,7 @@ function update_win_state()
         state = game_states.game
         angle = 0
         countdown_duration = 0
+        deactivate_timer = 0
         _init() -- reinitialize the game
     end
 end
@@ -386,7 +389,7 @@ function init_bombs()
 		bomb.y_end = bomb.y_start + 30 + rnd(40)
 		bomb.x = potential_bomb_x
 		bomb.y = bomb.y_start
-		bomb.speed = 0.5 + rnd(0.5)
+		bomb.speed = 0.1 + rnd(0.1)
 		bomb.dir = (rnd(2) < 1) and -1 or 1
 
 		add(bombs, bomb)
@@ -443,14 +446,32 @@ function init_switches()
 	end
 end
 
+deactivate_timer = 0
+start_time = false
 function update_switches()
 	for s in all(switches) do
 		if check_collision(player, s) then
 			s.is_active = true
-		else
-			s.is_active = false
+            start_time = true
 		end
+
+        if not start_time then
+            s.is_active = false
+        end
 	end
+
+    if start_time and deactivate_timer == 0 then
+        deactivate_timer = 60 * 5
+    end
+
+    -- 5 second time for freezing   
+    if deactivate_timer > 0 then
+        deactivate_timer -= 1
+        -- check if the timer has reached zero.
+        if deactivate_timer == 0 then
+            start_time = false
+        end
+    end
 end
 
 function draw_switches()
@@ -462,6 +483,10 @@ function draw_switches()
 		rectfill(s.x, s.y, s.x+s.size-1, s.y+s.size-1, 0)
 		rect(s.x, s.y, s.x+s.size-1, s.y+s.size-1, color)
 		print("s", s.x+2, s.y+1, color)
+
+        if s.is_active and deactivate_timer > 0 then
+            print(flr(deactivate_timer / 60) + 1, s.x + 3, s.y + 2, 8)
+        end
 	end
 end
 
