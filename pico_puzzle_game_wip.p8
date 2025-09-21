@@ -98,6 +98,7 @@ function update_game_state()
         if is_bomb_active(bomb) and check_collision(player, bomb) then
             state = game_states.menu
             angle = 0
+            countdown_duration = 0
             _init() -- re-init menu
         end
     end
@@ -252,7 +253,7 @@ function draw_player()
     --     player.y + player.size,
     --     7
     -- )
-    spr(0, player.x, player.y, player.size, player.size, false, false)
+    spr(0, player.x, player.y, 1, 1, false, true)
 
     if countdown_duration > 0 then
         print(flr(countdown_duration / 60) + 1, player.x + 3, player.y + 2, 1)
@@ -348,7 +349,7 @@ function draw_bombs()
         -- rectfill(bomb.x, bomb.y, bomb.x + bomb.size - 1, bomb.y + bomb.size - 1, 1)
         -- rectfill(bomb.x + 1, bomb.y + 1, bomb.x + bomb.size - 2, bomb.y + bomb.size - 2, interior_color)
         -- pset(bomb.x + 2, bomb.y + 2, 7)
-        spr(1, bomb.x, bomb.y, bomb.size, bomb.size, false, false)
+        spr(1, bomb.x, bomb.y, 1, 1, false, false)
     end
 end
 
