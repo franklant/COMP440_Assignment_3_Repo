@@ -3,7 +3,8 @@ version 43
 __lua__
 game_states = {
     menu = 1,
-    game = 2
+    game = 2,
+    win = 3
 }
 
 -- current state of the game
@@ -47,7 +48,6 @@ function update_menu_state()
 end
 
 function draw_menu_state()
-    local offset = 12
     -- title
     print(
         title_text.text, 
@@ -73,11 +73,11 @@ function init_game_state()
 
     -- bombs
     bombs = {}
-    bomb_count = 4
+    bomb_count = 1
     
     -- switches
     switches = {}
-    switch_count = 3
+    switch_count = 2
     
     init_switches()
     init_bombs()
@@ -102,6 +102,14 @@ function update_game_state()
             _init() -- re-init menu
         end
     end
+
+    -- check win condition
+    if player.cells_painted >= 264 then
+        state = game_states.win
+        angle = 0
+        countdown_duration = 0
+        _init() -- reinitialize the game
+    end
 end
 
 function draw_game_state()
@@ -125,6 +133,61 @@ function draw_game_state()
     )
 end
 
+-- win state
+function init_win_state()
+    local offset = 32
+    win_text = {
+        text = "Congratulations! True art!",
+        x = 47 - offset,
+        y = 64,
+        c = 10
+    }
+
+    retry_text = {
+        text = "Press X to paint again",
+        x = 56 - offset,
+        y = 72,
+        c = 8
+    }
+
+
+end
+
+angle = 0
+function update_win_state()
+    -- make text floaty
+    angle += 0.01
+
+    win_text.y += sin(angle)
+
+    if angle >= 1 then
+        angle = 0
+    end
+
+    if btnp(5) then -- x button pressed
+        state = game_states.game
+        angle = 0
+        countdown_duration = 0
+        _init() -- reinitialize the game
+    end
+end
+
+function draw_win_state()
+    -- win 
+    print(
+        win_text.text, 
+        win_text.x, win_text.y,
+        win_text.c
+    )
+
+    -- retry
+    print(
+        retry_text.text,
+        retry_text.x, retry_text.y,
+        retry_text.c
+    )
+end
+
 -- player
 function init_player()
     player = {
@@ -140,7 +203,7 @@ function init_player()
         is_reversing = false,
         is_freezing = false,
         row = 0,
-        col = 0,
+        cells_painted = 0,
         
         walk = function(self)
             -- walk state
@@ -170,7 +233,7 @@ function init_player()
                 if row >= 0 and row <= 15 and col >= 0 and col <= 15 then
                     mp[row + 1][col + 1] = complete_mp[row + 1][col + 1]
                 end
-                self.col += 1
+                self.cells_painted += 1
             end
         end,
         
@@ -179,7 +242,7 @@ function init_player()
             self.y += self.speed
             
             if self.y >= self.row * 8 then
-                self.col = 0
+                -- self.col = 0
                 self.is_shifting = false
                 self.is_reversing = true
             end
@@ -253,10 +316,10 @@ function draw_player()
     --     player.y + player.size,
     --     7
     -- )
-    spr(0, player.x, player.y, 1, 1, false, true)
+    spr(0, player.x, player.y + 0.5, 1, 1, false, true)
 
     if countdown_duration > 0 then
-        print(flr(countdown_duration / 60) + 1, player.x + 3, player.y + 2, 1)
+        print(flr(countdown_duration / 60) + 1, player.x + 3, player.y + 2, 8)
     end
 end
 
@@ -270,7 +333,7 @@ function display_message(text, t, x, y)
 
     i += 1
     if i <= t * 60 then
-        print(text, x, y, 4)
+        print(text, x, y, 10)
     end
 end
 
@@ -311,7 +374,7 @@ function init_bombs()
 		bomb.y_end = bomb.y_start + 30 + rnd(40)
 		bomb.x = potential_bomb_x
 		bomb.y = bomb.y_start
-		bomb.speed = 0.5 + rnd(1)
+		bomb.speed = 0.5 + rnd(0.5)
 		bomb.dir = (rnd(2) < 1) and -1 or 1
 
 		add(bombs, bomb)
@@ -421,7 +484,7 @@ function init_map()
 
     -- the completed map when the player fully crosses the screen
     -- each value corresponds to the color it will show
-    complete_mp = {
+    test_mp = {
         {7, 2, 7, 2, 7, 2, 7, 2, 2, 2, 7, 2, 2, 1, 1, 1},
         {7, 2, 7, 2, 7, 2, 7, 2, 2, 2, 7, 2, 2, 1, 1, 1},
         {7, 2, 7, 2, 7, 2, 7, 2, 2, 2, 7, 2, 2, 1, 1, 1},
@@ -439,6 +502,81 @@ function init_map()
         {7, 2, 7, 2, 7, 2, 7, 2, 2, 2, 7, 2, 2, 1, 1, 1},
         {7, 2, 7, 2, 7, 2, 7, 2, 2, 2, 7, 2, 2, 1, 1, 1}
     }
+    smile_face_mp = {
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1},
+        {1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1, 1},
+        {1, 1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1},
+        {1, 1, 10, 10, 12, 12, 10, 10, 10, 12, 12, 10, 10, 10, 1, 1},
+        {1, 10, 10, 10, 12, 12, 10, 10, 10, 12, 12, 10, 10, 10, 10, 1},
+        {1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1},
+        {1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1},
+        {1, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 1},
+        {1, 1, 10, 10, 10, 9, 9, 9, 9, 9, 9, 10, 10, 10, 1, 1},
+        {1, 1, 1, 10, 10, 10, 9, 9, 9, 9, 10, 10, 10, 1, 1, 1},
+        {1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 10, 10, 10, 10, 10, 10, 1, 1, 1, 1, 1},
+        {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}
+    }
+    apple_mp = {
+        {11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11},
+        {11, 11, 11, 11, 11, 11, 11, 4, 4, 11, 11, 11, 11, 11, 11, 11},
+        {11, 11, 11, 11, 11, 11, 4, 4, 4, 11, 11, 11, 11, 11, 11, 11},
+        {11, 11, 11, 11, 11, 11, 8, 8, 8, 8, 11, 11, 11, 11, 11, 11},
+        {11, 11, 11, 11, 11, 8, 7, 8, 8, 8, 8, 11, 11, 11, 11, 11},
+        {11, 11, 11, 11, 8, 7, 8, 8, 8, 8, 8, 8, 11, 11, 11, 11},
+        {11, 11, 11, 11, 8, 7, 8, 8, 8, 8, 8, 8, 8, 11, 11, 11},
+        {11, 11, 11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11, 11},
+        {11, 11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11},
+        {11, 11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11},
+        {11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11},
+        {11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11},
+        {11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11},
+        {11, 11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11, 11},
+        {11, 11, 11, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 11, 11, 11},
+        {11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11}
+    }
+    flower_mp = {
+        {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 10, 10, 10, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 10, 10, 10, 10, 10, 10, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 10, 10, 10, 10, 10, 10, 10, 10, 3, 3, 3, 3, 3},
+        {3, 3, 3, 10, 10, 9, 9, 9, 10, 10, 10, 10, 3, 3, 3, 3},
+        {3, 3, 10, 10, 9, 9, 10, 9, 9, 9, 10, 10, 3, 3, 3, 3},
+        {3, 3, 10, 10, 9, 10, 9, 9, 10, 9, 10, 10, 3, 3, 3, 3},
+        {3, 3, 10, 10, 9, 9, 10, 9, 9, 9, 10, 10, 3, 3, 3, 3},
+        {3, 3, 3, 10, 10, 9, 9, 9, 10, 10, 10, 10, 3, 3, 3, 3},
+        {3, 3, 3, 3, 10, 10, 10, 10, 10, 10, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 10, 10, 10, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 11, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 11, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 11, 3, 3, 3, 3, 3, 3, 3, 3},
+        {3, 3, 3, 3, 3, 3, 3, 11, 3, 3, 3, 3, 3, 3, 3, 3}
+    }
+    sun_mp = {
+        {2, 2, 2, 2, 2, 2, 10, 10, 10, 2, 2, 2, 2, 2, 2, 2},
+        {2, 2, 2, 2, 2, 10, 9, 9, 9, 10, 2, 2, 2, 2, 2, 2},
+        {2, 2, 2, 2, 10, 9, 9, 9, 9, 9, 10, 2, 2, 2, 2, 2},
+        {2, 2, 2, 10, 9, 9, 10, 10, 9, 9, 9, 10, 2, 2, 2, 2},
+        {2, 2, 10, 9, 9, 10, 10, 10, 10, 9, 9, 9, 10, 2, 2, 2},
+        {2, 10, 9, 9, 10, 10, 10, 10, 10, 10, 10, 9, 9, 10, 2, 2},
+        {10, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 10, 2},
+        {10, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 10},
+        {10, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 9, 9, 10},
+        {2, 10, 9, 9, 10, 10, 10, 10, 10, 10, 10, 9, 9, 10, 2, 2},
+        {2, 2, 10, 9, 9, 10, 10, 10, 10, 9, 9, 9, 10, 2, 2, 2},
+        {2, 2, 2, 10, 9, 9, 10, 10, 9, 9, 9, 10, 2, 2, 2, 2},
+        {2, 2, 2, 2, 10, 9, 9, 9, 9, 9, 10, 2, 2, 2, 2, 2},
+        {2, 2, 2, 2, 2, 10, 9, 9, 9, 10, 2, 2, 2, 2, 2, 2},
+        {2, 2, 2, 2, 2, 2, 10, 10, 10, 2, 2, 2, 2, 2, 2, 2},
+        {2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2}
+    }
+
+    -- randomize the map selection each game
+    complete_mp = rnd({test_mp, smile_face_mp, apple_mp, flower_mp, sun_mp})
 end
 
 function draw_map()
@@ -463,6 +601,8 @@ function _init()
         init_menu_state()
     elseif state == game_states.game then
         init_game_state()
+    elseif state == game_states.win then
+        init_win_state()
     end
 end
 
@@ -472,6 +612,8 @@ function _update60()
         update_menu_state()
     elseif state == game_states.game then
         update_game_state()
+    elseif state == game_states.win then
+        update_win_state()
     end
 end
 
@@ -483,6 +625,8 @@ function _draw()
         draw_menu_state()
     elseif state == game_states.game then
         draw_game_state()
+    elseif state == game_states.win then
+        draw_win_state()
     end
 end
 __gfx__
