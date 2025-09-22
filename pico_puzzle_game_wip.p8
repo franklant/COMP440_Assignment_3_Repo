@@ -28,7 +28,7 @@ function init_menu_state()
     }
 
     -- Playing menu music 
-    music(0)
+    music(1)
 
 end
 
@@ -69,7 +69,7 @@ end
 -- game state
 function init_game_state()
     -- map
-    music(1) -- background music 
+    music(0) -- background music 
     init_map()
 
     -- player
@@ -289,6 +289,7 @@ function update_player()
         if not player.is_freezing and countdown_duration == 0 then
             player.is_freezing = true
             sfx(1) -- playing freeze sound effect
+            music(-1)
             countdown_duration = 60 * 5
         end
     end
@@ -299,6 +300,7 @@ function update_player()
         -- check if the timer has reached zero.
         if countdown_duration == 0 then
             player.is_freezing = false
+            music(0)
         end
     end
 
@@ -454,6 +456,7 @@ function update_switches()
 		if check_collision(player, s) then
 			s.is_active = true
             start_time = true
+            sfx(5)
 		end
 
         if not start_time then
